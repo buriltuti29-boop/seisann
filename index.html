@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>生産管理システム v3.7 ｜ 統合コンソール</title>
+<title>生産管理システム v3.8 ｜ 統合コンソール</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@500;700;900&display=swap" rel="stylesheet">
@@ -1338,7 +1338,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   <div class="hud-logo">生産管理 7</div>
   <div class="hud-status">
     <span>状態 <strong style="color: var(--neon)">● 稼働中</strong></span>
-    <span>バージョン <strong>3.7</strong></span>
+    <span>バージョン <strong>3.8</strong></span>
     <span>モード <strong>本番</strong></span>
     <span class="hud-time">時刻 · 2026.05.06 · UTC+9</span>
   </div>
@@ -1399,17 +1399,16 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
 
   
   <div style="margin-top: 24px; padding: 12px 20px; background: rgba(0,255,159,0.08); border: 1px solid rgba(0,255,159,0.3); display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #00ff9f;">
-    ✓ Excelで入力 → 「↑EXCELから読み込み」でHTMLに反映 / HTMLで確認 → 「↓EXCELダウンロード」
+    ✓ 「🔄最新更新」を1回押すだけ → Excelで保存するたびに自動でHTMLが更新（3秒ごと自動チェック）
   </div>
   
   <div class="hero-actions">
     <a href="javascript:void(0)" onclick="downloadEmbeddedXlsx()" class="btn primary">
       <span>↓ Excelをダウンロード</span>
     </a>
-    <label class="btn primary upload-btn">
-      <span>↑ EXCELから読み込み</span>
-      <input type="file" accept=".xlsx,.xls" onchange="uploadExcelFile(this)">
-    </label>
+    <a href="javascript:void(0)" onclick="startAutoSync()" class="btn primary upload-btn" id="sync-btn">
+      <span>🔄 最新更新（Excel自動連動）</span>
+    </a>
     <a href="#system" class="btn">
       <span>システム概要 →</span>
     </a>
@@ -3335,16 +3334,15 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   </p>
 
   <div class="dl-wrap">
-    <label class="dl-card" style="cursor:pointer">
-      <div class="dl-card-tag" style="background:#ff9f00;color:#0a0a0c">入力反映</div>
-      <h3 class="dl-card-name">↑ Excelから<br><span class="ital">読み込み</span></h3>
+    <a href="javascript:void(0)" onclick="startAutoSync()" class="dl-card">
+      <div class="dl-card-tag" style="background:#ff9f00;color:#0a0a0c">自動同期</div>
+      <h3 class="dl-card-name">🔄 最新更新<br><span class="ital">Excel自動連動</span></h3>
       <div class="dl-card-meta">
-        <span>双方向連動</span>
-        <span>クリックで<br>ファイル選択</span>
+        <span>5秒ごと自動同期</span>
+        <span>Excel保存と同時に<br>HTMLが自動更新</span>
       </div>
-      <div class="dl-card-cta">Excelファイルを選択</div>
-      <input type="file" accept=".xlsx,.xls" onchange="uploadExcelFile(this)" style="display:none">
-    </label>
+      <div class="dl-card-cta">クリックで開始</div>
+    </a>
 
     <a href="javascript:void(0)" onclick="downloadEmbeddedXlsx()" class="dl-card">
       <div class="dl-card-tag">データ層</div>
@@ -3490,6 +3488,70 @@ footer::after {
   box-shadow: 0 0 16px rgba(255,159,0,0.5);
 }
 
+
+/* === 自動同期インジケーター === */
+.sync-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(13, 31, 26, 0.95);
+  border: 1px solid #00aa66;
+  color: #f5f1e8;
+  padding: 12px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  z-index: 9998;
+  display: none;
+  box-shadow: 0 0 24px rgba(0,255,159,0.4);
+  min-width: 280px;
+}
+.sync-indicator.active { display: block; }
+.sync-indicator-title {
+  font-weight: 700;
+  color: #00ff9f;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sync-indicator-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ff9f;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+.sync-indicator-detail {
+  color: #aaa;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.sync-indicator-file {
+  color: #00aa66;
+  font-weight: 700;
+  word-break: break-all;
+}
+.sync-indicator-stop {
+  background: transparent;
+  border: 1px solid #555;
+  color: #aaa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 4px 10px;
+  margin-top: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.sync-indicator-stop:hover {
+  border-color: #c8512a;
+  color: #c8512a;
+}
+
 </style>
 
 <footer>
@@ -3506,7 +3568,7 @@ footer::after {
     <div class="foot-info">
       <dl>
         <dt>モジュール</dt><dd>生産管理 / 第7モジュール</dd>
-        <dt>バージョン</dt><dd>3.7 / 双方向同期</dd>
+        <dt>バージョン</dt><dd>3.8 / Excel自動同期</dd>
         <dt>適用範囲</dt><dd>汎用 / 非機密</dd>
         <dt>構成</dt><dd>11カテゴリ · 44機能 · 5フェーズ</dd>
         <dt>データ</dt><dd>20シート · 476数式</dd>
@@ -4296,6 +4358,253 @@ function uploadExcelFile(input) {
       
       input.value = '';
       
+    } catch (err) {
+      alert('Excel読み込み失敗: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+</script>
+
+
+<script>
+// === Excel自動同期システム ===
+let syncFileHandle = null;
+let syncIntervalId = null;
+let syncLastModified = 0;
+let syncFileName = '';
+const SYNC_INTERVAL_MS = 3000;  // 3秒ごとにチェック
+
+async function startAutoSync() {
+  // File System Access API 対応チェック
+  if (!('showOpenFilePicker' in window)) {
+    // フォールバック：従来のファイル選択
+    const fallbackInput = document.createElement('input');
+    fallbackInput.type = 'file';
+    fallbackInput.accept = '.xlsx,.xls';
+    fallbackInput.onchange = function() { uploadExcelFile(this); };
+    fallbackInput.click();
+    
+    showToast('⚠ このブラウザは自動同期非対応のため、毎回ファイル選択が必要です\n（Chrome/Edge推奨）', '#e0a82e', 5000);
+    return;
+  }
+  
+  try {
+    // 1回目：ユーザーがファイル選択
+    if (!syncFileHandle) {
+      [syncFileHandle] = await window.showOpenFilePicker({
+        types: [{
+          description: 'Excelファイル',
+          accept: {
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx']
+          }
+        }],
+        multiple: false
+      });
+      
+      const file = await syncFileHandle.getFile();
+      syncFileName = file.name;
+      syncLastModified = 0;  // 強制再読み込み
+    }
+    
+    // 即座に1回読み込み
+    await reloadFromHandle();
+    
+    // 自動同期を開始
+    if (syncIntervalId) clearInterval(syncIntervalId);
+    syncIntervalId = setInterval(async () => {
+      try {
+        await reloadFromHandle();
+      } catch (e) {
+        console.warn('自動同期エラー:', e.message);
+      }
+    }, SYNC_INTERVAL_MS);
+    
+    // 状態表示
+    updateSyncIndicator();
+    
+    // ボタンの見た目変更
+    const btn = document.getElementById('sync-btn');
+    if (btn) btn.querySelector('span').textContent = '🔄 同期中：' + syncFileName;
+    
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      alert('自動同期開始エラー: ' + err.message);
+      console.error(err);
+    }
+  }
+}
+
+async function reloadFromHandle() {
+  if (!syncFileHandle) return;
+  
+  const file = await syncFileHandle.getFile();
+  
+  // 最終更新時刻が変わっていなければスキップ
+  if (file.lastModified === syncLastModified) return;
+  
+  const isFirst = (syncLastModified === 0);
+  syncLastModified = file.lastModified;
+  
+  // 読み込み
+  const buffer = await file.arrayBuffer();
+  const data = new Uint8Array(buffer);
+  const wb = XLSX.read(data, {type: 'array', cellStyles: true});
+  cachedWorkbook = wb;
+  
+  const ws = wb.Sheets['01_製造計画カレンダー'];
+  if (!ws) {
+    showToast('⚠ 「01_製造計画カレンダー」シートが見つかりません', '#c8512a', 4000);
+    return;
+  }
+  
+  const productCols = {
+    'PROD-001':'D','PROD-002':'E','PROD-003':'F','PROD-004':'G','PROD-005':'H',
+    'PROD-006':'I','PROD-007':'J','PROD-008':'K','PROD-009':'L','PROD-010':'M',
+    'PROD-011':'N','PROD-012':'O','PROD-013':'P','PROD-014':'Q','PROD-015':'R'
+  };
+  
+  productionData = {};
+  let inputCount = 0;
+  for (let day = 1; day <= 31; day++) {
+    const dayRow = 11 + day;
+    const dayData = {};
+    productMaster.forEach(p => {
+      const col = productCols[p.id];
+      const cell = ws[col + dayRow];
+      const v = (cell && typeof cell.v === 'number') ? cell.v : 0;
+      dayData[p.id] = v;
+      if (v > 0) inputCount++;
+    });
+    productionData[day] = dayData;
+  }
+  originalExcelData = JSON.parse(JSON.stringify(productionData));
+  
+  // 表示更新
+  const totalKg = Math.round(calculateMonthTotals().all).toLocaleString();
+  const time = new Date().toLocaleTimeString('ja-JP');
+  
+  if (isFirst) {
+    showToast('✓ Excel読み込み完了\n入力 ' + inputCount + '件 / 月総合計 ' + totalKg + ' kg\n以降は3秒ごとに自動同期', '#00ff9f', 4000);
+  } else {
+    showToast('🔄 Excel更新を検知\n月総合計 ' + totalKg + ' kg / ' + time, '#00ff9f', 2500);
+  }
+  
+  updateSyncIndicator();
+  
+  // モーダルが開いていれば再描画
+  const modal = document.getElementById('sheet-modal');
+  if (modal && modal.classList.contains('open')) {
+    const titleEl = document.getElementById('sheet-modal-title');
+    const numEl = document.getElementById('sheet-modal-num');
+    const currentSheet = titleEl.textContent;
+    const num = numEl.textContent;
+    modal.classList.remove('open');
+    setTimeout(() => openSheetPreview(currentSheet, num), 100);
+  }
+}
+
+function updateSyncIndicator() {
+  let ind = document.getElementById('sync-indicator');
+  if (!ind) {
+    ind = document.createElement('div');
+    ind.id = 'sync-indicator';
+    ind.className = 'sync-indicator';
+    document.body.appendChild(ind);
+  }
+  
+  const totalKg = productionData ? Math.round(calculateMonthTotals().all).toLocaleString() : '-';
+  const time = new Date().toLocaleTimeString('ja-JP');
+  
+  ind.innerHTML = `
+    <div class="sync-indicator-title">
+      <span class="sync-indicator-pulse"></span>
+      Excel自動同期中
+    </div>
+    <div class="sync-indicator-detail">
+      ファイル: <span class="sync-indicator-file">${syncFileName}</span><br>
+      月総合計: <strong style="color:#00ff9f">${totalKg} kg</strong><br>
+      最終確認: ${time}<br>
+      <span style="color:#888">3秒ごとに自動チェック</span>
+    </div>
+    <button class="sync-indicator-stop" onclick="stopAutoSync()">同期停止</button>
+  `;
+  ind.classList.add('active');
+}
+
+function stopAutoSync() {
+  if (syncIntervalId) {
+    clearInterval(syncIntervalId);
+    syncIntervalId = null;
+  }
+  syncFileHandle = null;
+  syncFileName = '';
+  
+  const ind = document.getElementById('sync-indicator');
+  if (ind) ind.classList.remove('active');
+  
+  const btn = document.getElementById('sync-btn');
+  if (btn) btn.querySelector('span').textContent = '🔄 最新更新（Excel自動連動）';
+  
+  showToast('同期を停止しました', '#888', 2000);
+}
+
+function showToast(msg, color, duration) {
+  const toast = document.createElement('div');
+  toast.innerHTML = msg.replace(/\n/g, '<br>');
+  toast.style.cssText = `position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:${color || '#00ff9f'};color:#0a0a0c;padding:14px 28px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;z-index:11000;border:2px solid #0a0a0c;box-shadow:0 0 24px rgba(0,255,159,0.6);text-align:center;line-height:1.6`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), duration || 3000);
+}
+
+// 旧 uploadExcelFile（フォールバック用に残す）
+function uploadExcelFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type: 'array', cellStyles: true});
+      cachedWorkbook = wb;
+      
+      const ws = wb.Sheets['01_製造計画カレンダー'];
+      if (!ws) { alert('カレンダーシート見つからず'); return; }
+      
+      const productCols = {
+        'PROD-001':'D','PROD-002':'E','PROD-003':'F','PROD-004':'G','PROD-005':'H',
+        'PROD-006':'I','PROD-007':'J','PROD-008':'K','PROD-009':'L','PROD-010':'M',
+        'PROD-011':'N','PROD-012':'O','PROD-013':'P','PROD-014':'Q','PROD-015':'R'
+      };
+      productionData = {};
+      let inputCount = 0;
+      for (let day = 1; day <= 31; day++) {
+        const dayRow = 11 + day;
+        const dayData = {};
+        productMaster.forEach(p => {
+          const col = productCols[p.id];
+          const cell = ws[col + dayRow];
+          const v = (cell && typeof cell.v === 'number') ? cell.v : 0;
+          dayData[p.id] = v;
+          if (v > 0) inputCount++;
+        });
+        productionData[day] = dayData;
+      }
+      originalExcelData = JSON.parse(JSON.stringify(productionData));
+      
+      showToast('✓ Excel読み込み完了\n入力 ' + inputCount + '件 / 月合計 ' + Math.round(calculateMonthTotals().all).toLocaleString() + ' kg', '#00ff9f', 4000);
+      
+      if (document.getElementById('sheet-modal').classList.contains('open')) {
+        const titleEl = document.getElementById('sheet-modal-title');
+        const numEl = document.getElementById('sheet-modal-num');
+        const currentSheet = titleEl.textContent;
+        const num = numEl.textContent;
+        document.getElementById('sheet-modal').classList.remove('open');
+        setTimeout(() => openSheetPreview(currentSheet, num), 100);
+      }
+      input.value = '';
     } catch (err) {
       alert('Excel読み込み失敗: ' + err.message);
       console.error(err);
