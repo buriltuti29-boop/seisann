@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>生産管理システム v3.6 ｜ 統合コンソール</title>
+<title>生産管理システム v3.7 ｜ 統合コンソール</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@500;700;900&display=swap" rel="stylesheet">
@@ -1338,7 +1338,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   <div class="hud-logo">生産管理 7</div>
   <div class="hud-status">
     <span>状態 <strong style="color: var(--neon)">● 稼働中</strong></span>
-    <span>バージョン <strong>3.6</strong></span>
+    <span>バージョン <strong>3.7</strong></span>
     <span>モード <strong>本番</strong></span>
     <span class="hud-time">時刻 · 2026.05.06 · UTC+9</span>
   </div>
@@ -1399,13 +1399,17 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
 
   
   <div style="margin-top: 24px; padding: 12px 20px; background: rgba(0,255,159,0.08); border: 1px solid rgba(0,255,159,0.3); display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: #00ff9f;">
-    ✓ 業務テンプレート内蔵 · 色・数式付き業務用Excelをダウンロード可能（営業デモは画面で）
+    ✓ Excelで入力 → 「↑EXCELから読み込み」でHTMLに反映 / HTMLで確認 → 「↓EXCELダウンロード」
   </div>
   
   <div class="hero-actions">
     <a href="javascript:void(0)" onclick="downloadEmbeddedXlsx()" class="btn primary">
       <span>↓ Excelをダウンロード</span>
     </a>
+    <label class="btn primary upload-btn">
+      <span>↑ EXCELから読み込み</span>
+      <input type="file" accept=".xlsx,.xls" onchange="uploadExcelFile(this)">
+    </label>
     <a href="#system" class="btn">
       <span>システム概要 →</span>
     </a>
@@ -3331,6 +3335,17 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   </p>
 
   <div class="dl-wrap">
+    <label class="dl-card" style="cursor:pointer">
+      <div class="dl-card-tag" style="background:#ff9f00;color:#0a0a0c">入力反映</div>
+      <h3 class="dl-card-name">↑ Excelから<br><span class="ital">読み込み</span></h3>
+      <div class="dl-card-meta">
+        <span>双方向連動</span>
+        <span>クリックで<br>ファイル選択</span>
+      </div>
+      <div class="dl-card-cta">Excelファイルを選択</div>
+      <input type="file" accept=".xlsx,.xls" onchange="uploadExcelFile(this)" style="display:none">
+    </label>
+
     <a href="javascript:void(0)" onclick="downloadEmbeddedXlsx()" class="dl-card">
       <div class="dl-card-tag">データ層</div>
       <h3 class="dl-card-name">
@@ -3458,6 +3473,23 @@ footer::after {
   letter-spacing: 0.25em;
   color: var(--txt-3);
 }
+
+/* === Excel アップロード ボタン === */
+.btn.upload-btn {
+  background: #ff9f00 !important;
+  color: #0a0a0c !important;
+  border-color: #ff9f00 !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn.upload-btn input { display: none; }
+.btn.upload-btn:hover {
+  background: #ffb84d !important;
+  box-shadow: 0 0 16px rgba(255,159,0,0.5);
+}
+
 </style>
 
 <footer>
@@ -3474,7 +3506,7 @@ footer::after {
     <div class="foot-info">
       <dl>
         <dt>モジュール</dt><dd>生産管理 / 第7モジュール</dd>
-        <dt>バージョン</dt><dd>3.6 / お客様用</dd>
+        <dt>バージョン</dt><dd>3.7 / 双方向同期</dd>
         <dt>適用範囲</dt><dd>汎用 / 非機密</dd>
         <dt>構成</dt><dd>11カテゴリ · 44機能 · 5フェーズ</dd>
         <dt>データ</dt><dd>20シート · 476数式</dd>
@@ -4203,6 +4235,74 @@ document.addEventListener('keydown', e => {
 });
 
 // 旧プレビューハンドラ削除（onclick直接指定方式に変更）
+</script>
+
+
+<script>
+// Excel ファイルアップロード → productionData更新
+function uploadExcelFile(input) {
+  const file = input.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, {type: 'array', cellStyles: true});
+      cachedWorkbook = wb;
+      
+      const ws = wb.Sheets['01_製造計画カレンダー'];
+      if (!ws) {
+        alert('「01_製造計画カレンダー」シートが見つかりません');
+        return;
+      }
+      
+      const productCols = {
+        'PROD-001':'D','PROD-002':'E','PROD-003':'F','PROD-004':'G','PROD-005':'H',
+        'PROD-006':'I','PROD-007':'J','PROD-008':'K','PROD-009':'L','PROD-010':'M',
+        'PROD-011':'N','PROD-012':'O','PROD-013':'P','PROD-014':'Q','PROD-015':'R'
+      };
+      
+      productionData = {};
+      let inputCount = 0;
+      for (let day = 1; day <= 31; day++) {
+        const dayRow = 11 + day;
+        const data = {};
+        productMaster.forEach(p => {
+          const col = productCols[p.id];
+          const cell = ws[col + dayRow];
+          const v = (cell && typeof cell.v === 'number') ? cell.v : 0;
+          data[p.id] = v;
+          if (v > 0) inputCount++;
+        });
+        productionData[day] = data;
+      }
+      originalExcelData = JSON.parse(JSON.stringify(productionData));
+      
+      const toast = document.createElement('div');
+      toast.innerHTML = '✓ Excel読み込み完了<br>入力データ: ' + inputCount + '件 / 月総合計: ' + Math.round(calculateMonthTotals().all).toLocaleString() + ' kg';
+      toast.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#00ff9f;color:#0a0a0c;padding:18px 36px;font-family:JetBrains Mono,monospace;font-size:13px;font-weight:700;letter-spacing:0.15em;z-index:11000;border:2px solid #0a0a0c;box-shadow:0 0 32px rgba(0,255,159,0.8);text-align:center;line-height:1.6';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+      
+      if (document.getElementById('sheet-modal').classList.contains('open')) {
+        const titleEl = document.getElementById('sheet-modal-title');
+        const currentSheet = titleEl.textContent;
+        const numEl = document.getElementById('sheet-modal-num');
+        const num = numEl.textContent;
+        document.getElementById('sheet-modal').classList.remove('open');
+        setTimeout(() => openSheetPreview(currentSheet, num), 100);
+      }
+      
+      input.value = '';
+      
+    } catch (err) {
+      alert('Excel読み込み失敗: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
 </script>
 
 </body>
