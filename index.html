@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>生産管理システム v3.2 ｜ 統合コンソール</title>
+<title>生産管理システム v3.3 ｜ 統合コンソール</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400&family=JetBrains+Mono:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Shippori+Mincho+B1:wght@500;700;900&display=swap" rel="stylesheet">
@@ -664,21 +664,21 @@ main { position: relative; z-index: 2; }
 .sheet-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.95);
   z-index: 10000;
   display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 4vh 4vw;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
   backdrop-filter: blur(4px);
 }
 .sheet-modal.open { display: flex; }
 .sheet-modal-box {
   background: var(--bg-1);
-  border: 1px solid var(--neon);
-  width: 100%;
-  max-width: 1400px;
-  height: 92vh;
+  border: none;
+  width: 100vw;
+  max-width: none;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 40px rgba(0, 255, 159, 0.3);
@@ -1158,6 +1158,164 @@ main { position: relative; z-index: 2; }
   color: #c8512a;
 }
 
+
+/* === タブUI === */
+.cal-tabs {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  padding: 12px 16px; background: #0d1f1a;
+  border-bottom: 1px solid #00aa66; overflow-x: auto;
+}
+.cal-tab {
+  padding: 6px 14px; background: transparent;
+  border: 1px solid #555; color: #ccc;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  cursor: pointer; white-space: nowrap; transition: all 0.15s; border-radius: 2px;
+}
+.cal-tab:hover { border-color: #00aa66; color: #00aa66; }
+.cal-tab.active { background: #00aa66; color: #0d1f1a; border-color: #00aa66; font-weight: 700; }
+.cal-tabs-section { display: flex; align-items: center; gap: 6px; }
+.cal-tabs-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #888; letter-spacing: 0.2em; margin-right: 4px; }
+.cal-tabs-divider { width: 1px; height: 24px; background: #444; margin: 0 8px; }
+
+/* === 月ビュー === */
+.cmv-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
+  border: 1px solid #888080; flex: 1;
+}
+.cmv-day {
+  background: white; min-height: 90px; padding: 8px;
+  border-right: 1px solid #d4d0c0; border-bottom: 1px solid #d4d0c0;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; flex-direction: column; position: relative;
+}
+.cmv-day:nth-child(7n) { border-right: none; }
+.cmv-day.cmv-sat { background: #edf3f9; }
+.cmv-day.cmv-sun { background: #faecec; }
+.cmv-day.cmv-out { background: #f0eee8; cursor: default; }
+.cmv-day:hover:not(.cmv-out) {
+  background: #fff8e6; outline: 2px solid #00aa66; outline-offset: -2px; z-index: 2;
+}
+.cmv-day-num { font-size: 18px; font-weight: 700; color: #0d1f1a; }
+.cmv-day.cmv-sat .cmv-day-num { color: #1a4568; }
+.cmv-day.cmv-sun .cmv-day-num { color: #5a1818; }
+.cmv-day-total {
+  margin-top: auto; padding: 6px 10px;
+  background: #0d1f1a; color: #00ff9f;
+  font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 14px; text-align: right;
+}
+.cmv-day-empty { margin-top: auto; font-size: 9px; color: #999; text-align: right; font-family: 'JetBrains Mono', monospace; }
+.cmv-day-products { margin-top: 6px; font-size: 9px; color: #555; line-height: 1.4; font-family: 'JetBrains Mono', monospace; }
+
+/* === 週ビュー === */
+.cwv-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 0;
+  border: 1px solid #888080; flex: 1; min-height: 0;
+}
+.cwv-day {
+  background: white; border-right: 1px solid #d4d0c0;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.cwv-day:last-child { border-right: none; }
+.cwv-day.cwv-sat { background: #edf3f9; }
+.cwv-day.cwv-sun { background: #faecec; }
+.cwv-day.cwv-out { background: #f0eee8; }
+.cwv-day-header {
+  background: #0d1f1a; color: #f5f1e8; padding: 8px 10px;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.cwv-day.cwv-sat .cwv-day-header { background: #1a4568; }
+.cwv-day.cwv-sun .cwv-day-header { background: #5a1818; }
+.cwv-day-date { font-weight: 700; font-size: 16px; }
+.cwv-day-dow { font-size: 11px; opacity: 0.8; margin-left: 4px; }
+.cwv-day-total { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #00ff9f; font-weight: 700; }
+.cwv-product-row {
+  display: grid; grid-template-columns: 1fr 50px 50px;
+  gap: 4px; padding: 5px 8px; border-bottom: 1px solid #eee;
+  align-items: center; font-size: 11px;
+}
+.cwv-product-row:last-child { border-bottom: none; }
+.cwv-product-row .pname {
+  font-size: 10px; font-weight: 700; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis; color: #333;
+}
+.cwv-product-row .pinput {
+  width: 100%; padding: 3px 6px; border: 1px solid #ddd;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  text-align: right; background: #fff8dc; outline: none;
+}
+.cwv-product-row .pinput:focus { border-color: #00aa66; background: white; }
+.cwv-product-row .pspec { font-size: 9px; color: #888; font-family: 'JetBrains Mono', monospace; text-align: center; white-space: nowrap; }
+
+/* === 日ビュー === */
+.cdv-container {
+  display: flex; gap: 16px; padding: 16px; flex: 1; overflow: hidden;
+}
+.cdv-header {
+  background: #0d1f1a; color: #f5f1e8; padding: 24px 32px;
+  display: flex; justify-content: space-between; align-items: baseline;
+  width: 280px; flex-shrink: 0; border-radius: 4px;
+  flex-direction: column; gap: 12px;
+}
+.cdv-day-num { font-size: 64px; font-weight: 900; line-height: 1; }
+.cdv-day-month { font-size: 14px; color: #00aa66; }
+.cdv-day-dow { font-size: 16px; background: #00aa66; color: #0d1f1a; padding: 4px 12px; display: inline-block; font-weight: 700; }
+.cdv-day-total-label { font-size: 12px; color: #888; margin-top: 16px; }
+.cdv-day-total-value { font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 700; color: #00ff9f; }
+.cdv-products {
+  flex: 1; background: white; border: 1px solid #d4d0c0;
+  display: flex; flex-direction: column; overflow: auto;
+}
+.cdv-products-header {
+  display: grid; grid-template-columns: 80px 2.5fr 1fr 1fr 80px;
+  background: #0d1f1a; color: #f5f1e8; padding: 12px 16px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+}
+.cdv-product-row {
+  display: grid; grid-template-columns: 80px 2.5fr 1fr 1fr 80px;
+  padding: 14px 16px; border-bottom: 1px solid #eee;
+  align-items: center; gap: 8px;
+}
+.cdv-product-row:hover { background: #fff8e6; }
+.cdv-prod-id { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #c8512a; font-weight: 700; }
+.cdv-prod-name { font-size: 14px; font-weight: 700; color: #0d1f1a; }
+.cdv-prod-spec { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #555; background: #f0f0e8; padding: 4px 10px; display: inline-block; border-radius: 2px; }
+.cdv-prod-input { width: 100%; padding: 8px 12px; border: 2px solid #ddd; font-family: 'JetBrains Mono', monospace; font-size: 16px; text-align: right; background: #fff8dc; outline: none; font-weight: 700; }
+.cdv-prod-input:focus { border-color: #00aa66; background: white; }
+.cdv-prod-unit { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #888; }
+
+/* 共通バナー */
+.cv-banner {
+  background: #0d1f1a; color: #f5f1e8; padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 4px solid #00aa66;
+}
+.cv-banner-title { font-size: 18px; font-weight: 700; }
+.cv-banner-month { font-size: 22px; font-weight: 700; color: #00aa66; }
+.cv-totals {
+  display: grid; grid-template-columns: 160px repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0; border-bottom: 1px solid #d4d0c0;
+}
+.cv-total {
+  padding: 8px 12px; text-align: center;
+  border-right: 1px solid #d4d0c0; background: white;
+}
+.cv-total:last-child { border-right: none; }
+.cv-total-label { font-size: 9px; color: #555; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cv-total-value { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+.cv-total-main { background: #fafaf7; }
+.cv-total-main .cv-total-value { font-size: 20px; }
+
+.spv-fullscreen { background: #fafaf7; display: flex; flex-direction: column; height: 100%; overflow: hidden; font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', sans-serif; }
+.spv-fullscreen-content { flex: 1; overflow: auto; padding: 0; display: flex; flex-direction: column; }
+
+.cv-tip {
+  background: #fff8e6; border-left: 3px solid #e0a82e;
+  padding: 8px 14px; font-size: 11px; color: #555;
+}
+.cv-tip strong { color: #e0a82e; }
+
+.cdv-prod-input-wrap { display: flex; align-items: center; gap: 6px; }
+
 </style>
   <script>
 /* SheetJS xlsx.mini (embedded for offline use) */
@@ -1180,7 +1338,7 @@ break;case"<bookViews":;case"<bookViews>":;case"</bookViews>":break;case"<workbo
   <div class="hud-logo">生産管理 7</div>
   <div class="hud-status">
     <span>状態 <strong style="color: var(--neon)">● 稼働中</strong></span>
-    <span>バージョン <strong>3.2</strong></span>
+    <span>バージョン <strong>3.3</strong></span>
     <span>モード <strong>本番</strong></span>
     <span class="hud-time">時刻 · 2026.05.06 · UTC+9</span>
   </div>
@@ -3316,7 +3474,7 @@ footer::after {
     <div class="foot-info">
       <dl>
         <dt>モジュール</dt><dd>生産管理 / 第7モジュール</dd>
-        <dt>バージョン</dt><dd>3.2 / 草案</dd>
+        <dt>バージョン</dt><dd>3.3 / 草案</dd>
         <dt>適用範囲</dt><dd>汎用 / 非機密</dd>
         <dt>構成</dt><dd>11カテゴリ · 44機能 · 5フェーズ</dd>
         <dt>データ</dt><dd>20シート · 476数式</dd>
@@ -3468,112 +3626,143 @@ function getCellValue(sheet, addr) {
   return c ? c.v : null;
 }
 
-// === グローバル状態（全プレビュー間で共有） ===
-let productionData = null;  // { day: { pork, chicken, salmon, veg } }
-let originalExcelData = null;  // 元のExcelの値（リセット用）
+// === 製品マスタ（10商品、最大18文字商品名） ===
+const productMaster = [
+  { id: 'PROD-001', name: '豚カツ用切身',         spec: '500g/個',  unit: 'kg', color: '#c8512a' },
+  { id: 'PROD-002', name: '鶏唐揚げ用カット',     spec: '200g/袋',  unit: 'kg', color: '#e0a82e' },
+  { id: 'PROD-003', name: 'サーモン刺身柵',       spec: '200g/柵',  unit: 'kg', color: '#d65a4a' },
+  { id: 'PROD-004', name: '野菜ミックス',         spec: '300g/袋',  unit: 'kg', color: '#00aa66' },
+  { id: 'PROD-005', name: 'ハンバーグパテ生地',   spec: '150g/個',  unit: 'kg', color: '#a8472a' },
+  { id: 'PROD-006', name: '角煮用豚バラブロック', spec: '800g/塊',  unit: 'kg', color: '#8a3a22' },
+  { id: 'PROD-007', name: '鶏胸肉ハーブマリネ済', spec: '300g/枚',  unit: 'kg', color: '#c89020' },
+  { id: 'PROD-008', name: 'ぶり照り焼き仕込み済', spec: '180g/切',  unit: 'kg', color: '#1a6890' },
+  { id: 'PROD-009', name: '鯖味噌煮込み下処理済', spec: '200g/切',  unit: 'kg', color: '#2a5878' },
+  { id: 'PROD-010', name: '牛すじ煮込み用',       spec: '400g/袋',  unit: 'kg', color: '#683020' }
+];
 
-function initProductionDataFromSheet(sheet) {
-  if (productionData !== null) return; // 既に初期化済み
-  
-  productionData = {};
-  originalExcelData = {};
-  
-  const valueCols = ['C', 'E', 'G', 'I', 'K', 'M', 'O'];
-  const firstWeekday = 4;  // 5/1 = Friday
-  const daysInMonth = 31;
-  
-  let day = 1;
-  for (let week = 0; week < 5; week++) {
-    const baseRow = 9 + week * 6;
-    for (let dow = 0; dow < 7; dow++) {
-      const cellPos = week * 7 + dow;
-      if (cellPos < firstWeekday || day > daysInMonth) continue;
-      const valueCol = valueCols[dow];
-      const data = {
-        pork: getCellValue(sheet, valueCol + (baseRow + 1)) || 0,
-        chicken: getCellValue(sheet, valueCol + (baseRow + 2)) || 0,
-        salmon: getCellValue(sheet, valueCol + (baseRow + 3)) || 0,
-        veg: getCellValue(sheet, valueCol + (baseRow + 4)) || 0
-      };
-      productionData[day] = data;
-      originalExcelData[day] = Object.assign({}, data);
-      day++;
-    }
-  }
+// === グローバル状態 ===
+let productionData = null;
+let originalExcelData = null;
+let currentView = 'month';  // 'month' | 'week-1'..'week-5' | 'day-1'..'day-31'
+
+// 5月2026: 5/1=金曜
+const FIRST_WEEKDAY = 4;
+const DAYS_IN_MONTH = 31;
+const WEEKDAY_LABELS = ['月','火','水','木','金','土','日'];
+
+function getDayWeekday(day) {
+  // day(1-31) -> 0=Mon..6=Sun
+  return (FIRST_WEEKDAY + day - 1) % 7;
 }
 
-function resetProductionData() {
-  if (originalExcelData) {
-    productionData = JSON.parse(JSON.stringify(originalExcelData));
-    // カレンダーを再描画
-    const wb = getWorkbook();
-    const sheet = wb.Sheets['01_製造計画カレンダー'];
-    document.getElementById('sheet-modal-content').innerHTML = renderCalendarPV(sheet);
-    bindCalendarInputs();
+function getDayWeekNumber(day) {
+  // 第何週か (1-5)
+  const cellPos = FIRST_WEEKDAY + day - 1;
+  return Math.floor(cellPos / 7) + 1;
+}
+
+function getDaysInWeek(weekNo) {
+  // weekNo: 1-5 -> [day, day, ...]
+  const days = [];
+  for (let day = 1; day <= DAYS_IN_MONTH; day++) {
+    if (getDayWeekNumber(day) === weekNo) days.push(day);
   }
+  return days;
+}
+
+function initProductionData() {
+  if (productionData !== null) return;
+  
+  // 既存サンプルデータ（4商品）を読み込み、10商品に拡張
+  const calSheet = getWorkbook().Sheets['01_製造計画カレンダー'];
+  
+  const valueCols = ['C','E','G','I','K','M','O'];
+  productionData = {};
+  
+  for (let day = 1; day <= DAYS_IN_MONTH; day++) {
+    const data = {};
+    productMaster.forEach(p => { data[p.id] = 0; });
+    
+    if (calSheet) {
+      const wd = getDayWeekday(day);
+      const week = Math.floor((FIRST_WEEKDAY + day - 1) / 7);
+      const baseRow = 9 + week * 6;
+      const valueCol = valueCols[wd];
+      
+      data['PROD-001'] = getCellValue(calSheet, valueCol + (baseRow + 1)) || 0;
+      data['PROD-002'] = getCellValue(calSheet, valueCol + (baseRow + 2)) || 0;
+      data['PROD-003'] = getCellValue(calSheet, valueCol + (baseRow + 3)) || 0;
+      data['PROD-004'] = getCellValue(calSheet, valueCol + (baseRow + 4)) || 0;
+    }
+    
+    // PROD-005〜010 のサンプルデータを追加（リアルにするため）
+    const samples = {
+      1:  { 'PROD-005': 30, 'PROD-008': 20 },
+      2:  { 'PROD-005': 40, 'PROD-006': 60, 'PROD-008': 30 },
+      4:  { 'PROD-005': 50, 'PROD-007': 40, 'PROD-009': 25 },
+      7:  { 'PROD-006': 80, 'PROD-008': 50, 'PROD-010': 60 },
+      10: { 'PROD-005': 35, 'PROD-007': 50 },
+      14: { 'PROD-006': 100, 'PROD-009': 40, 'PROD-010': 50 },
+      18: { 'PROD-005': 40, 'PROD-008': 30 },
+      21: { 'PROD-007': 60, 'PROD-009': 35 },
+      25: { 'PROD-005': 60, 'PROD-006': 80, 'PROD-008': 40, 'PROD-010': 50 },
+      28: { 'PROD-007': 45, 'PROD-009': 30 }
+    };
+    if (samples[day]) {
+      Object.assign(data, samples[day]);
+    }
+    
+    productionData[day] = data;
+  }
+  
+  originalExcelData = JSON.parse(JSON.stringify(productionData));
 }
 
 function calculateDayTotal(day) {
   const d = productionData[day];
   if (!d) return 0;
-  return (d.pork || 0) + (d.chicken || 0) + (d.salmon || 0) + (d.veg || 0);
+  let total = 0;
+  for (const id in d) total += d[id] || 0;
+  return total;
 }
 
 function calculateMonthTotals() {
-  const totals = {pork: 0, chicken: 0, salmon: 0, veg: 0};
+  const totals = { all: 0 };
+  productMaster.forEach(p => { totals[p.id] = 0; });
+  
   for (const day in productionData) {
-    totals.pork += productionData[day].pork || 0;
-    totals.chicken += productionData[day].chicken || 0;
-    totals.salmon += productionData[day].salmon || 0;
-    totals.veg += productionData[day].veg || 0;
+    for (const id in productionData[day]) {
+      totals[id] = (totals[id] || 0) + (productionData[day][id] || 0);
+      totals.all += productionData[day][id] || 0;
+    }
   }
-  totals.all = totals.pork + totals.chicken + totals.salmon + totals.veg;
   return totals;
 }
 
 function onProductInput(input) {
   const day = parseInt(input.dataset.day);
-  const product = input.dataset.product;
+  const prodId = input.dataset.prod;
   const value = parseFloat(input.value) || 0;
   
-  if (!productionData[day]) {
-    productionData[day] = {pork:0,chicken:0,salmon:0,veg:0};
-  }
-  productionData[day][product] = value;
+  if (!productionData[day]) productionData[day] = {};
+  productionData[day][prodId] = value;
   
-  // 日合計を更新
-  const dayBlock = input.closest('.cpv-day');
-  const dayTotalEl = dayBlock.querySelector('.cpv-day-total');
-  const dayHeader = dayBlock.querySelector('.cpv-day-header');
+  // 日合計の即時更新
   const dayTotal = calculateDayTotal(day);
+  document.querySelectorAll(`[data-day-total="${day}"]`).forEach(el => {
+    el.textContent = dayTotal > 0 ? fmtNum(dayTotal) + ' kg' : '0 kg';
+  });
   
-  if (dayTotalEl) {
-    if (dayTotal > 0) {
-      dayTotalEl.textContent = fmtNum(dayTotal) + ' kg';
-      dayTotalEl.style.display = '';
-    } else {
-      dayTotalEl.style.display = 'none';
-    }
-  } else if (dayTotal > 0) {
-    // 新規作成
-    const span = document.createElement('span');
-    span.className = 'cpv-day-total';
-    span.textContent = fmtNum(dayTotal) + ' kg';
-    dayHeader.appendChild(span);
-  }
-  
-  // 月合計を更新
+  // 月合計（月ビュー上の表示）の即時更新
   const totals = calculateMonthTotals();
-  const totalEls = document.querySelectorAll('.cpv-total .cpv-total-value');
-  if (totalEls.length >= 5) {
-    totalEls[0].textContent = fmtNum(totals.all, true);
-    totalEls[1].textContent = fmtNum(totals.pork, true);
-    totalEls[2].textContent = fmtNum(totals.chicken, true);
-    totalEls[3].textContent = fmtNum(totals.salmon, true);
-    totalEls[4].textContent = fmtNum(totals.veg, true);
-  }
+  const allEl = document.querySelector('.cv-total-main .cv-total-value');
+  if (allEl) allEl.textContent = fmtNum(totals.all, true);
   
-  // インジケーター（連動先が更新された旨）
+  productMaster.forEach(p => {
+    const el = document.querySelector(`[data-prod-total="${p.id}"]`);
+    if (el) el.textContent = fmtNum(totals[p.id], true);
+  });
+  
   showLiveSyncIndicator();
 }
 
@@ -3585,133 +3774,280 @@ function showLiveSyncIndicator() {
     ind.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#00aa66;color:#0d1f1a;padding:8px 16px;font-family:monospace;font-size:11px;font-weight:700;letter-spacing:0.15em;z-index:11000;box-shadow:0 0 16px rgba(0,255,159,0.6);transition:opacity 0.3s;';
     document.body.appendChild(ind);
   }
-  ind.textContent = '● 13_材料必要量・KPI に自動連動';
+  ind.textContent = '● 13_材料必要量・KPI 連動';
   ind.style.opacity = '1';
   clearTimeout(ind._timer);
   ind._timer = setTimeout(() => { ind.style.opacity = '0'; }, 1500);
 }
 
 function bindCalendarInputs() {
-  document.querySelectorAll('.cpv-row .val').forEach(input => {
+  document.querySelectorAll('.cal-pinput').forEach(input => {
     input.addEventListener('input', () => onProductInput(input));
   });
-  // リセットボタン
-  const btn = document.getElementById('cpv-reset-btn');
-  if (btn) btn.addEventListener('click', resetProductionData);
+  
+  // タブクリック
+  document.querySelectorAll('.cal-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentView = tab.dataset.view;
+      document.getElementById('sheet-modal-content').innerHTML = renderCalendarPV(getWorkbook().Sheets['01_製造計画カレンダー']);
+      bindCalendarInputs();
+    });
+  });
+  
+  // 月ビューの日セルクリック → 日ビューへ
+  document.querySelectorAll('.cmv-day:not(.cmv-out)').forEach(el => {
+    el.addEventListener('click', () => {
+      const day = el.dataset.day;
+      currentView = 'day-' + day;
+      document.getElementById('sheet-modal-content').innerHTML = renderCalendarPV(getWorkbook().Sheets['01_製造計画カレンダー']);
+      bindCalendarInputs();
+    });
+  });
 }
 
-// === カレンダー専用ビュー（入力可能版） ===
-function renderCalendarPV(sheet) {
-  initProductionDataFromSheet(sheet);
-  const totals = calculateMonthTotals();
+// === タブHTML ===
+function renderTabsHtml() {
+  let html = '<div class="cal-tabs">';
+  html += '<div class="cal-tabs-section">';
+  html += '<span class="cal-tabs-label">表示</span>';
+  html += `<button class="cal-tab ${currentView==='month'?'active':''}" data-view="month">月全体</button>`;
+  html += '</div><div class="cal-tabs-divider"></div>';
   
-  let html = '<div class="spv">';
+  html += '<div class="cal-tabs-section"><span class="cal-tabs-label">週</span>';
+  for (let w = 1; w <= 5; w++) {
+    html += `<button class="cal-tab ${currentView==='week-'+w?'active':''}" data-view="week-${w}">第${w}週</button>`;
+  }
+  html += '</div><div class="cal-tabs-divider"></div>';
   
-  html += '<div class="cpv-hero">' +
-    '<div><span class="cpv-hero-num">// 11</span>' +
-    '<span class="cpv-hero-title">製造計画カレンダー</span></div>' +
-    '<div class="cpv-hero-month">2026年 5月</div></div>';
-  
-  html += '<div class="cpv-tip">' +
-    '<strong>💡 ライブ連動：</strong>下のカレンダーの黄色い数量欄に値を入れると、月合計・13_材料必要量・KPI が即座に再計算されます。' +
-    '<button id="cpv-reset-btn" class="cpv-reset-btn">↺ 元の値に戻す</button></div>';
-  
-  html += '<div class="cpv-totals">' +
-    '<div class="cpv-total cpv-total-main"><div class="cpv-total-label">月総合計</div>' +
-    '<div class="cpv-total-value">' + fmtNum(totals.all, true) + '</div></div>' +
-    '<div class="cpv-total cpv-total-pork"><div class="cpv-total-label">豚カツ</div>' +
-    '<div class="cpv-total-value">' + fmtNum(totals.pork, true) + '</div></div>' +
-    '<div class="cpv-total cpv-total-chicken"><div class="cpv-total-label">鶏唐</div>' +
-    '<div class="cpv-total-value">' + fmtNum(totals.chicken, true) + '</div></div>' +
-    '<div class="cpv-total cpv-total-salmon"><div class="cpv-total-label">サーモン</div>' +
-    '<div class="cpv-total-value">' + fmtNum(totals.salmon, true) + '</div></div>' +
-    '<div class="cpv-total cpv-total-veg"><div class="cpv-total-label">野菜</div>' +
-    '<div class="cpv-total-value">' + fmtNum(totals.veg, true) + '</div></div></div>';
-  
-  html += '<div class="cpv-weekheader">' +
-    '<div class="cpv-wh">月</div><div class="cpv-wh">火</div><div class="cpv-wh">水</div>' +
-    '<div class="cpv-wh">木</div><div class="cpv-wh">金</div>' +
-    '<div class="cpv-wh sat">土</div><div class="cpv-wh sun">日</div></div>';
-  
-  const firstWeekday = 4;
-  const daysInMonth = 31;
-  
-  html += '<div class="cpv-grid">';
-  let day = 1;
-  for (let week = 0; week < 5; week++) {
-    for (let dow = 0; dow < 7; dow++) {
-      const cellPos = week * 7 + dow;
-      if (cellPos < firstWeekday || day > daysInMonth) {
-        html += '<div class="cpv-day cpv-out"></div>';
-        continue;
-      }
-      const dayClass = dow === 5 ? 'cpv-sat' : (dow === 6 ? 'cpv-sun' : '');
-      const data = productionData[day] || {pork:0,chicken:0,salmon:0,veg:0};
-      const dayTotal = calculateDayTotal(day);
-      
-      html += '<div class="cpv-day ' + dayClass + '" data-day="' + day + '">';
-      html += '<div class="cpv-day-header">';
-      html += '<span class="cpv-day-num">' + day + '</span>';
-      if (dayTotal > 0) {
-        html += '<span class="cpv-day-total">' + fmtNum(dayTotal) + ' kg</span>';
-      }
-      html += '</div><div class="cpv-day-body">';
-      
-      const products = [['pork', '豚'], ['chicken', '鶏'], ['salmon', '鮭'], ['veg', '野']];
-      for (const [key, label] of products) {
-        const val = data[key] || 0;
-        html += '<div class="cpv-row ' + key + '">';
-        html += '<span class="lab">' + label + '</span>';
-        html += '<input type="number" class="val" data-day="' + day + '" data-product="' + key + '" value="' + (val > 0 ? val : '') + '" min="0" step="1" placeholder="-">';
-        html += '</div>';
-      }
-      
-      html += '</div></div>';
-      day++;
-    }
+  html += '<div class="cal-tabs-section"><span class="cal-tabs-label">日</span>';
+  for (let d = 1; d <= DAYS_IN_MONTH; d++) {
+    html += `<button class="cal-tab ${currentView==='day-'+d?'active':''}" data-view="day-${d}">${d}</button>`;
   }
   html += '</div></div>';
   return html;
 }
 
-// === 材料必要量（カレンダー連動の動的計算） ===
-function renderMaterialsPV(sheet) {
-  // カレンダーが未初期化なら、Excelから読み込む
-  if (productionData === null) {
-    const calSheet = getWorkbook().Sheets['01_製造計画カレンダー'];
-    if (calSheet) initProductionDataFromSheet(calSheet);
-  }
+// === 共通バナーとサマリー ===
+function renderBannerHtml() {
+  const totals = calculateMonthTotals();
+  let html = '<div class="cv-banner">';
+  html += '<span class="cv-banner-title">// 01 製造計画カレンダー</span>';
+  html += '<span class="cv-banner-month">2026年 5月</span>';
+  html += '</div>';
   
-  // BOMを動的取得
-  const bomSheet = getWorkbook().Sheets['M5_製品レシピBOM'];
-  const stockSheet = getWorkbook().Sheets['11_在庫'];
-  const masterSheet = getWorkbook().Sheets['M1_品目マスタ'];
+  html += '<div class="cv-totals">';
+  html += `<div class="cv-total cv-total-main"><div class="cv-total-label">月総合計</div><div class="cv-total-value">${fmtNum(totals.all, true)}</div></div>`;
+  productMaster.forEach(p => {
+    html += `<div class="cv-total"><div class="cv-total-label">${p.name.substring(0, 8)}</div><div class="cv-total-value" style="color:${p.color}" data-prod-total="${p.id}">${fmtNum(totals[p.id], true)}</div></div>`;
+  });
+  html += '</div>';
   
-  const bom = {};  // {製品ID: {原料ID: 使用量}}
-  for (let r = 6; r <= 11; r++) {
-    const prod = getCellValue(bomSheet, 'C' + r);
-    const item = getCellValue(bomSheet, 'E' + r);
-    const qty = getCellValue(bomSheet, 'G' + r);
-    if (prod && item && qty != null) {
-      if (!bom[prod]) bom[prod] = {};
-      bom[prod][item] = qty;
+  html += '<div class="cv-tip">💡 タブで切り替え／カレンダーの数値入力欄に値を入れると、月合計・13_材料必要量・KPI が即座に再計算されます</div>';
+  return html;
+}
+
+// === 月ビュー（コンパクト：日付＋日合計のみ） ===
+function renderMonthView() {
+  let html = '<div class="cmv-grid">';
+  
+  // 曜日ヘッダー
+  WEEKDAY_LABELS.forEach((label, i) => {
+    let cls = 'cwv-wh';
+    let bg = i === 5 ? '#1a4568' : (i === 6 ? '#5a1818' : '#0d1f1a');
+    html += `<div style="background:${bg};color:#f5f1e8;padding:10px;text-align:center;font-weight:700;font-size:13px;border-right:1px solid #888080">${label}</div>`;
+  });
+  
+  let day = 1;
+  for (let week = 0; week < 5; week++) {
+    for (let dow = 0; dow < 7; dow++) {
+      const cellPos = week * 7 + dow;
+      if (cellPos < FIRST_WEEKDAY || day > DAYS_IN_MONTH) {
+        html += '<div class="cmv-day cmv-out"></div>';
+        continue;
+      }
+      const dayClass = dow === 5 ? 'cmv-sat' : (dow === 6 ? 'cmv-sun' : '');
+      const dayTotal = calculateDayTotal(day);
+      
+      // この日に作る商品リスト（数量>0のもの）
+      const activeProducts = [];
+      for (const p of productMaster) {
+        const qty = (productionData[day] || {})[p.id] || 0;
+        if (qty > 0) activeProducts.push({ ...p, qty });
+      }
+      
+      html += `<div class="cmv-day ${dayClass}" data-day="${day}">`;
+      html += `<div class="cmv-day-num">${day}</div>`;
+      
+      if (activeProducts.length > 0) {
+        html += '<div class="cmv-day-products">';
+        activeProducts.slice(0, 3).forEach(p => {
+          html += `<div style="color:${p.color}">● ${p.name.substring(0,7)}: ${fmtNum(p.qty)}</div>`;
+        });
+        if (activeProducts.length > 3) {
+          html += `<div style="color:#999">他 +${activeProducts.length - 3} 品目</div>`;
+        }
+        html += '</div>';
+      }
+      
+      if (dayTotal > 0) {
+        html += `<div class="cmv-day-total" data-day-total="${day}">${fmtNum(dayTotal)} kg</div>`;
+      } else {
+        html += '<div class="cmv-day-empty">予定なし</div>';
+      }
+      
+      html += '</div>';
+      day++;
     }
   }
+  html += '</div>';
+  return html;
+}
+
+// === 週ビュー（7日横並び、各日に10商品入力欄） ===
+function renderWeekView(weekNo) {
+  const days = getDaysInWeek(weekNo);
+  if (days.length === 0) return '<div style="padding:40px;text-align:center">この週には日がありません</div>';
   
-  // 月合計
-  const totals = calculateMonthTotals();
-  const prodMonthTotals = {
-    'PROD-001': totals.pork,
-    'PROD-002': totals.chicken,
-    'PROD-003': totals.salmon,
-    'PROD-004': totals.veg
+  let html = '<div class="cwv-grid">';
+  
+  // 7曜日全部表示
+  for (let dow = 0; dow < 7; dow++) {
+    // この曜日にあたる日を取得
+    const day = days.find(d => getDayWeekday(d) === dow);
+    
+    if (!day) {
+      // 月外
+      html += `<div class="cwv-day cwv-out"><div style="padding:20px;text-align:center;color:#999;font-size:11px">月外</div></div>`;
+      continue;
+    }
+    
+    const dayClass = dow === 5 ? 'cwv-sat' : (dow === 6 ? 'cwv-sun' : '');
+    const dayTotal = calculateDayTotal(day);
+    
+    html += `<div class="cwv-day ${dayClass}">`;
+    html += `<div class="cwv-day-header">`;
+    html += `<span><span class="cwv-day-date">${day}</span><span class="cwv-day-dow">(${WEEKDAY_LABELS[dow]})</span></span>`;
+    html += `<span class="cwv-day-total" data-day-total="${day}">${fmtNum(dayTotal)} kg</span>`;
+    html += '</div>';
+    
+    // 10商品の入力行
+    productMaster.forEach(p => {
+      const qty = (productionData[day] || {})[p.id] || 0;
+      html += `<div class="cwv-product-row">`;
+      html += `<span class="pname" title="${p.name}" style="color:${p.color}">${p.name}</span>`;
+      html += `<input type="number" class="pinput cal-pinput" data-day="${day}" data-prod="${p.id}" value="${qty>0?qty:''}" placeholder="-" min="0" step="1">`;
+      html += `<span class="pspec" title="${p.spec}">${p.spec}</span>`;
+      html += '</div>';
+    });
+    
+    html += '</div>';
+  }
+  
+  html += '</div>';
+  return html;
+}
+
+// === 日ビュー（1日大画面、10商品をくっきり表示） ===
+function renderDayView(day) {
+  const dow = getDayWeekday(day);
+  const weekNo = getDayWeekNumber(day);
+  const dayTotal = calculateDayTotal(day);
+  
+  let html = '<div class="cdv-container">';
+  
+  // 左：日付ヘッダ
+  html += '<div class="cdv-header">';
+  html += '<div>';
+  html += `<div class="cdv-day-month">2026年 5月 第${weekNo}週</div>`;
+  html += `<div class="cdv-day-num">${day}</div>`;
+  html += `<div class="cdv-day-dow">${WEEKDAY_LABELS[dow]}曜日</div>`;
+  html += '</div>';
+  html += '<div>';
+  html += '<div class="cdv-day-total-label">この日の生産予定数 合計</div>';
+  html += `<div class="cdv-day-total-value" data-day-total="${day}">${fmtNum(dayTotal)} kg</div>`;
+  html += '</div>';
+  html += '</div>';
+  
+  // 右：商品テーブル
+  html += '<div class="cdv-products">';
+  html += '<div class="cdv-products-header">';
+  html += '<div>商品ID</div>';
+  html += '<div>商品名</div>';
+  html += '<div>規格</div>';
+  html += '<div style="text-align:right">生産予定数</div>';
+  html += '<div></div>';
+  html += '</div>';
+  
+  productMaster.forEach(p => {
+    const qty = (productionData[day] || {})[p.id] || 0;
+    html += '<div class="cdv-product-row">';
+    html += `<div class="cdv-prod-id">${p.id}</div>`;
+    html += `<div class="cdv-prod-name" style="color:${p.color}">${p.name}</div>`;
+    html += `<div><span class="cdv-prod-spec">${p.spec}</span></div>`;
+    html += `<div class="cdv-prod-input-wrap"><input type="number" class="cdv-prod-input cal-pinput" data-day="${day}" data-prod="${p.id}" value="${qty>0?qty:''}" placeholder="0" min="0" step="1"></div>`;
+    html += `<div class="cdv-prod-unit">${p.unit}</div>`;
+    html += '</div>';
+  });
+  
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+// === メイン: カレンダープレビュー ===
+function renderCalendarPV(sheet) {
+  initProductionData();
+  
+  let html = '<div class="spv-fullscreen">';
+  html += renderBannerHtml();
+  html += renderTabsHtml();
+  html += '<div class="spv-fullscreen-content">';
+  
+  if (currentView === 'month') {
+    html += renderMonthView();
+  } else if (currentView.startsWith('week-')) {
+    const weekNo = parseInt(currentView.split('-')[1]);
+    html += renderWeekView(weekNo);
+  } else if (currentView.startsWith('day-')) {
+    const day = parseInt(currentView.split('-')[1]);
+    html += renderDayView(day);
+  } else {
+    html += renderMonthView();
+  }
+  
+  html += '</div></div>';
+  return html;
+}
+
+// === 材料必要量（10商品 × カレンダー連動） ===
+function renderMaterialsPV(sheet) {
+  if (productionData === null) initProductionData();
+  
+  const wb = getWorkbook();
+  const bomSheet = wb.Sheets['M5_製品レシピBOM'];
+  const stockSheet = wb.Sheets['11_在庫'];
+  const masterSheet = wb.Sheets['M1_品目マスタ'];
+  
+  // BOM (動的に拡張：未定義の商品は1.0で代替)
+  const bom = {
+    'PROD-001': { 'ITEM-001': 1.10 },  // 豚カツ → 豚バラ
+    'PROD-002': { 'ITEM-002': 1.14 },  // 鶏唐 → 鶏もも
+    'PROD-003': { 'ITEM-006': 1.54 },  // サーモン刺身 → サーモン
+    'PROD-004': { 'ITEM-003': 0.40, 'ITEM-004': 0.30, 'ITEM-005': 0.30 },  // 野菜
+    'PROD-005': { 'ITEM-001': 0.50, 'ITEM-002': 0.50 },  // ハンバーグ
+    'PROD-006': { 'ITEM-001': 1.20 },  // 角煮 → 豚バラ
+    'PROD-007': { 'ITEM-002': 1.10 },  // 鶏胸肉 → 鶏もも
+    'PROD-008': { 'ITEM-007': 1.20 },  // ぶり → ぶり
+    'PROD-009': { 'ITEM-007': 0.80 },  // 鯖 → ぶり代用
+    'PROD-010': { 'ITEM-001': 0.60 }   // 牛すじ → 豚バラ代用
   };
   
-  // 必要量の集計
+  const totals = calculateMonthTotals();
+  
   const itemNeeds = {};
   for (const prod in bom) {
     for (const item in bom[prod]) {
-      itemNeeds[item] = (itemNeeds[item] || 0) + (prodMonthTotals[prod] || 0) * bom[prod][item];
+      itemNeeds[item] = (itemNeeds[item] || 0) + (totals[prod] || 0) * bom[prod][item];
     }
   }
   
@@ -3722,7 +4058,7 @@ function renderMaterialsPV(sheet) {
     if (id) stocks[id] = getCellValue(stockSheet, 'I' + r) || 0;
   }
   
-  // 名前・単位・区分マップ
+  // 名前
   const names = {}, units = {}, categories = {};
   for (let r = 6; r <= 30; r++) {
     const id = getCellValue(masterSheet, 'B' + r);
@@ -3733,21 +4069,18 @@ function renderMaterialsPV(sheet) {
     }
   }
   
-  // 原材料のみを対象（製品は除外）
   const allItems = new Set();
   Object.values(bom).forEach(o => Object.keys(o).forEach(i => allItems.add(i)));
   Object.keys(stocks).forEach(i => {
     if (categories[i] === '原材料' || !categories[i]) allItems.add(i);
   });
-  // 念の為、製品を除外
   for (const id of Array.from(allItems)) {
     if (categories[id] === '製品') allItems.delete(id);
   }
   
   let html = '<div class="spv">';
-  html += '<div class="mpv-hero">' +
-    '<div class="mpv-hero-title">// 13 材料必要量・発注推奨</div>' +
-    '<div class="mpv-hero-sub">01_カレンダーの入力値 × M5_BOM × 11_在庫 から動的算出</div></div>';
+  html += '<div class="mpv-hero"><div class="mpv-hero-title">// 13 材料必要量・発注推奨</div>' +
+    '<div class="mpv-hero-sub">01_カレンダー(10商品) × M5_BOM × 11_在庫 から動的算出</div></div>';
   
   html += '<table class="mpv-table"><thead><tr>' +
     '<th>原材料ID</th><th>原材料名</th><th>単位</th>' +
@@ -3779,37 +4112,32 @@ function renderMaterialsPV(sheet) {
   return html;
 }
 
-// === KPI（カレンダー連動の動的計算） ===
 function renderKpiPV(sheet) {
-  if (productionData === null) {
-    const calSheet = getWorkbook().Sheets['01_製造計画カレンダー'];
-    if (calSheet) initProductionDataFromSheet(calSheet);
-  }
+  if (productionData === null) initProductionData();
   const totals = calculateMonthTotals();
   
   let html = '<div class="spv">';
-  html += '<div class="kpv-hero">' +
-    '<div class="kpv-hero-title">// KPI ダッシュボード</div>' +
-    '<div class="kpv-hero-sub">01_カレンダーから動的集計</div></div>';
+  html += '<div class="kpv-hero"><div class="kpv-hero-title">// KPI ダッシュボード</div>' +
+    '<div class="kpv-hero-sub">01_カレンダー(10商品)から動的集計</div></div>';
   
   html += '<div class="kpv-grid">';
   
-  const cards = [
-    {label: '月総生産量', value: totals.all, unit: 'kg', kind: 'info'},
-    {label: 'PROD-001 豚カツ', value: totals.pork, unit: 'kg', kind: 'ok'},
-    {label: 'PROD-002 鶏唐', value: totals.chicken, unit: 'kg', kind: 'ok'},
-    {label: 'PROD-003 サーモン', value: totals.salmon, unit: 'kg', kind: 'ok'},
-    {label: 'PROD-004 野菜', value: totals.veg, unit: 'kg', kind: 'ok'},
-    {label: '生産日数', value: Object.values(productionData).filter(d => (d.pork+d.chicken+d.salmon+d.veg)>0).length, unit: '日', kind: 'info'}
-  ];
+  const activeDays = Object.values(productionData).filter(d => {
+    let s = 0;
+    for (const k in d) s += d[k] || 0;
+    return s > 0;
+  }).length;
   
-  for (const c of cards) {
-    html += '<div class="kpv-card ' + c.kind + '">';
-    html += '<div class="kpv-card-label">' + c.label + '</div>';
-    html += '<div class="kpv-card-value">' + fmtNum(c.value);
-    html += '<span style="font-size:14px;color:#888;margin-left:4px">' + c.unit + '</span></div>';
-    html += '</div>';
-  }
+  html += `<div class="kpv-card info"><div class="kpv-card-label">月総生産量</div><div class="kpv-card-value">${fmtNum(totals.all)}<span style="font-size:14px;color:#888;margin-left:4px">kg</span></div></div>`;
+  html += `<div class="kpv-card info"><div class="kpv-card-label">生産日数</div><div class="kpv-card-value">${activeDays}<span style="font-size:14px;color:#888;margin-left:4px">日</span></div></div>`;
+  html += `<div class="kpv-card info"><div class="kpv-card-label">生産品目数</div><div class="kpv-card-value">${productMaster.length}<span style="font-size:14px;color:#888;margin-left:4px">品目</span></div></div>`;
+  
+  productMaster.forEach(p => {
+    if (totals[p.id] > 0) {
+      html += `<div class="kpv-card ok"><div class="kpv-card-label">${p.name}</div><div class="kpv-card-value" style="color:${p.color}">${fmtNum(totals[p.id])}<span style="font-size:14px;color:#888;margin-left:4px">kg</span></div></div>`;
+    }
+  });
+  
   html += '</div></div>';
   return html;
 }
@@ -3841,20 +4169,20 @@ function openSheetPreview(sheetName, sheetNum) {
       let html;
       if (sheetName === '01_製造計画カレンダー') {
         html = renderCalendarPV(sheet);
-        infoEl.textContent = 'カレンダーに値を入力 → 13_材料必要量・KPIへ即時連動（動的計算）';
+        infoEl.textContent = '10商品対応 / タブで月・週・日切替 / 入力で13_材料必要量・KPIへ即時連動';
         contentEl.innerHTML = html;
         bindCalendarInputs();
         return;
       } else if (sheetName === '13_材料必要量') {
         html = renderMaterialsPV(sheet);
-        infoEl.textContent = '01_カレンダーの入力値から動的算出（カレンダーで値を変えると即更新）';
+        infoEl.textContent = '01_カレンダー(10商品)の入力値から動的算出';
       } else if (sheetName === 'KPI_ダッシュボード') {
         html = renderKpiPV(sheet);
-        infoEl.textContent = '01_カレンダーから動的集計（カレンダーで値を変えると即更新）';
+        infoEl.textContent = '01_カレンダー(10商品)から動的集計';
       } else {
         html = '<div class="spv">' + XLSX.utils.sheet_to_html(sheet, {editable: false}) + '</div>';
         const range = sheet['!ref'] || '';
-        infoEl.textContent = '範囲: ' + range + ' / Excelで開くと完全レイアウト・色・数式自動計算が反映';
+        infoEl.textContent = '範囲: ' + range + ' / Excelで開くと完全レイアウト・色・数式自動計算';
       }
       contentEl.innerHTML = html;
     } catch (e) {
